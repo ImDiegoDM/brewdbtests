@@ -125,4 +125,12 @@ class BeersEndPointTest extends TestCase
         ["Amber Ale"],
       ];
     }
+
+    public function testGetBeerWithInvalidName()
+    {
+      $client = new Client();
+      $response = $client->request('GET','http://api.brewerydb.com/v2/beers/?name=InvalidName&key='.$this->key);
+      $body = json_decode($response->getBody());
+      $this->assertFalse(isset($body->data));
+    }
 }
