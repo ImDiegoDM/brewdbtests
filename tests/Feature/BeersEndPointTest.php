@@ -52,6 +52,26 @@ class BeersEndPointTest extends TestCase
       $this->assertTrue($error!=null);
       $this->assertEquals('failure',json_decode($error->getResponse()->getBody())->status);
       $this->assertEquals(400, $error->getResponse()->getStatusCode());
+    }
 
+    /**
+     * @dataProvider idsProvider
+     */
+    public function testGetBeerWithId($id)
+    {
+      $client = new Client();
+      $response = $client->request('GET','http://api.brewerydb.com/v2/beers/?ids='.$id.'&key='.$this->key);
+      $body = json_decode($response->getBody());
+      $this->assertEquals($id,$body->data[0]->id);
+    }
+
+    public function idsProvider()
+    {
+        return [
+          ["v1ElI8"],
+          ["dCVxfZ"],
+          ["NB0OWu"],
+          ["nXn2op"]
+        ];
     }
 }
