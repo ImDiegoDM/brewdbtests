@@ -23,4 +23,17 @@ class BeersEndPointTest extends TestCase
         }
 
     }
+
+    public function testWihtInvalidKey()
+    {
+        //$this->expectException(GuzzleException::class);
+        $client = new Client();
+        try {
+          $response = $client->request('GET','http://api.brewerydb.com/v2/beers/?key=invalidkey');
+        } catch (GuzzleException $e) {
+          $this->assertEquals('failure',json_decode($e->getResponse()->getBody())->status);
+          $this->assertEquals(401, $e->getResponse()->getStatusCode());
+        }
+
+    }
 }
