@@ -74,4 +74,29 @@ class BeersEndPointTest extends TestCase
           ["nXn2op"]
         ];
     }
+
+    /**
+     * @dataProvider multipleIdsProvider
+     */
+    public function testGetBeerWithMultiplesId($ids)
+    {
+      $client = new Client();
+      $response = $client->request('GET','http://api.brewerydb.com/v2/beers/?ids='.$ids.'&key='.$this->key);
+      $ids = explode(',',$ids);
+      $data = json_decode($response->getBody())->data;
+      $idsReturned=[];
+      for ($i=0; $i < count($data); $i++) {
+        array_push($idsReturned,$data[$i]->id);
+      }
+      for ($i=0; $i <count($ids) ; $i++) {
+        $this->assertContains($ids[$i],$idsReturned);
+      }
+    }
+
+    public function multipleIdsProvider()
+    {
+        return [
+          ["v1ElI8,dCVxfZ,NB0OWu"],
+        ];
+    }
 }
