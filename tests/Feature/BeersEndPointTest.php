@@ -10,30 +10,48 @@ use GuzzleHttp\Client;
 
 class BeersEndPointTest extends TestCase
 {
+    private $key = "4f59e52fa1c653bb164e390d0822ea8c";
 
     public function testWihtoutKey()
     {
-        //$this->expectException(GuzzleException::class);
         $client = new Client();
+        $error;
         try {
           $response = $client->request('GET','http://api.brewerydb.com/v2/beers');
         } catch (GuzzleException $e) {
-          $this->assertEquals('failure',json_decode($e->getResponse()->getBody())->status);
-          $this->assertEquals(401, $e->getResponse()->getStatusCode());
+          $error=$e;
         }
-
+        $this->assertTrue($error!=null);
+        $this->assertEquals('failure',json_decode($e->getResponse()->getBody())->status);
+        $this->assertEquals(401, $e->getResponse()->getStatusCode());
     }
 
     public function testWihtInvalidKey()
     {
-        //$this->expectException(GuzzleException::class);
         $client = new Client();
+        $error;
         try {
           $response = $client->request('GET','http://api.brewerydb.com/v2/beers/?key=invalidkey');
         } catch (GuzzleException $e) {
-          $this->assertEquals('failure',json_decode($e->getResponse()->getBody())->status);
-          $this->assertEquals(401, $e->getResponse()->getStatusCode());
+          $error=$e;
         }
+        $this->assertTrue($error!=null);
+        $this->assertEquals('failure',json_decode($error->getResponse()->getBody())->status);
+        $this->assertEquals(401, $error->getResponse()->getStatusCode());
+    }
+
+    public function testWithValidKeyAndNoAtribute()
+    {
+      $client = new Client();
+      $error;
+      try {
+        $response = $client->request('GET','http://api.brewerydb.com/v2/beers/?key='.$this->key);
+      } catch (GuzzleException $e) {
+        $error=$e;
+      }
+      $this->assertTrue($error!=null);
+      $this->assertEquals('failure',json_decode($error->getResponse()->getBody())->status);
+      $this->assertEquals(400, $error->getResponse()->getStatusCode());
 
     }
 }
