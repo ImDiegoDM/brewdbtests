@@ -99,4 +99,30 @@ class BeersEndPointTest extends TestCase
           ["v1ElI8,dCVxfZ,NB0OWu"],
         ];
     }
+
+    public function testGetBeerWithInvalidId()
+    {
+      $client = new Client();
+      $response = $client->request('GET','http://api.brewerydb.com/v2/beers/?ids=invalidId&key='.$this->key);
+      $body = json_decode($response->getBody());
+      $this->assertFalse(isset($body->data));
+    }
+
+    /**
+     * @dataProvider nameProvider
+     */
+    public function testGetBeerWithName($name)
+    {
+      $client = new Client();
+      $response = $client->request('GET','http://api.brewerydb.com/v2/beers/?name='.$name.'&key='.$this->key);
+      $body = json_decode($response->getBody());
+      $this->assertEquals($name,$body->data[0]->name);
+    }
+
+    public function nameProvider()
+    {
+      return[
+        ["Amber Ale"],
+      ];
+    }
 }
