@@ -187,4 +187,30 @@ class BeersEndPointTest extends TestCase
         [3]
       ];
     }
+
+    /**
+     * @dataProvider availableIdsProvider
+     */
+    public function testGetBeersWithAvailable($id)
+    {
+      $client = new Client();
+      $response = $client->request('GET','http://api.brewerydb.com/v2/beers/?availableId='.$id.'&key='.$this->key);
+      $body = json_decode($response->getBody());
+      $availables=[];
+      for ($i=0; $i < count($body->data); $i++) {
+        array_push($availables,$body->data[$i]->availableId);
+      }
+      for ($i=0; $i < count($availables); $i++) {
+        $this->assertEquals($availables[$i],$id);
+      }
+    }
+
+    public function availableIdsProvider()
+    {
+      return [
+        [1],
+        [2],
+        [3]
+      ];
+    }
 }
