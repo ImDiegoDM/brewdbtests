@@ -239,4 +239,29 @@ class BeersEndPointTest extends TestCase
         [3]
       ];
     }
+
+    /**
+     * @dataProvider organicProvider
+     */
+    public function testGetBeersWithOrganic($organic)
+    {
+      $client = new Client();
+      $response = $client->request('GET','http://api.brewerydb.com/v2/beers/?styleId=1&isOrganic='.$organic.'&key='.$this->key);
+      $body = json_decode($response->getBody());
+      $organics=[];
+      for ($i=0; $i < count($body->data); $i++) {
+        array_push($organics,$body->data[$i]->isOrganic);
+      }
+      for ($i=0; $i < count($organics); $i++) {
+        $this->assertEquals($organics[$i],$organic);
+      }
+    }
+
+    public function organicProvider()
+    {
+      return [
+        ["Y"],
+        ["N"],
+      ];
+    }
 }
