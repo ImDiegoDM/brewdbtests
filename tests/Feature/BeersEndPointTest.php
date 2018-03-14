@@ -161,4 +161,30 @@ class BeersEndPointTest extends TestCase
         [3]
       ];
     }
+
+    /**
+     * @dataProvider srmIdsProvider
+     */
+    public function testGetBeersWithSrm($id)
+    {
+      $client = new Client();
+      $response = $client->request('GET','http://api.brewerydb.com/v2/beers/?srmId='.$id.'&key='.$this->key);
+      $body = json_decode($response->getBody());
+      $srms=[];
+      for ($i=0; $i < count($body->data); $i++) {
+        array_push($srms,$body->data[$i]->srmId);
+      }
+      for ($i=0; $i < count($srms); $i++) {
+        $this->assertEquals($srms[$i],$id);
+      }
+    }
+
+    public function srmIdsProvider()
+    {
+      return [
+        [1],
+        [2],
+        [3]
+      ];
+    }
 }
