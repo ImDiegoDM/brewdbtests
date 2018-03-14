@@ -213,4 +213,30 @@ class BeersEndPointTest extends TestCase
         [3]
       ];
     }
+
+    /**
+     * @dataProvider styleIdsProvider
+     */
+    public function testGetBeersWithStyle($id)
+    {
+      $client = new Client();
+      $response = $client->request('GET','http://api.brewerydb.com/v2/beers/?styleId='.$id.'&key='.$this->key);
+      $body = json_decode($response->getBody());
+      $styles=[];
+      for ($i=0; $i < count($body->data); $i++) {
+        array_push($styles,$body->data[$i]->styleId);
+      }
+      for ($i=0; $i < count($styles); $i++) {
+        $this->assertEquals($styles[$i],$id);
+      }
+    }
+
+    public function styleIdsProvider()
+    {
+      return [
+        [1],
+        [2],
+        [3]
+      ];
+    }
 }
