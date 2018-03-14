@@ -123,6 +123,8 @@ class BeersEndPointTest extends TestCase
     {
       return[
         ["Amber Ale"],
+        ["Arctic Ale"],
+        ["Highlander Scottish Ale"]
       ];
     }
 
@@ -132,5 +134,31 @@ class BeersEndPointTest extends TestCase
       $response = $client->request('GET','http://api.brewerydb.com/v2/beers/?name=InvalidName&key='.$this->key);
       $body = json_decode($response->getBody());
       $this->assertFalse(isset($body->data));
+    }
+
+    /**
+     * @dataProvider glassIdProvider
+     */
+    public function testGetBeersWithGlass($id)
+    {
+      $client = new Client();
+      $response = $client->request('GET','http://api.brewerydb.com/v2/beers/?glasswareId='.$id.'&key='.$this->key);
+      $body = json_decode($response->getBody());
+      $glasses=[];
+      for ($i=0; $i < count($body->data); $i++) {
+        array_push($glasses,$body->data[$i]->glasswareId);
+      }
+      for ($i=0; $i < count($glasses); $i++) {
+        $this->assertEquals($glasses[$i],$id);
+      }
+    }
+
+    public function glassIdProvider()
+    {
+      return [
+        [1],
+        [2],
+        [3]
+      ];
     }
 }
