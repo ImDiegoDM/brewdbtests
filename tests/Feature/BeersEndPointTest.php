@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
+use Carbon\Carbon;
 
 class BeersEndPointTest extends TestCase
 {
@@ -283,5 +284,55 @@ class BeersEndPointTest extends TestCase
       for ($i=0; $i < count($body->data); $i++) {
         $this->assertTrue(!isset($body->data[$i]->labels));
       }
+    }
+
+    /**
+     * @dataProvider yearsProvider
+     */
+    public function testGetBeersWithYear($year)
+    {
+      $client = new Client();
+      $response = $client->request('GET','http://api.brewerydb.com/v2/beers/?styleId=1&year='.$year.'&key='.$this->key);
+      $body = json_decode($response->getBody());
+      $beersYears=[];
+      for ($i=0; $i < count($body->data); $i++) {
+        array_push($beersYears,$body->data[$i]->year);
+      }
+      for ($i=0; $i < count($beersYears); $i++) {
+        $this->assertEquals($beersYears[$i],$year);
+      }
+    }
+
+    public function yearsProvider()
+    {
+      return [
+        ["2017"],
+        ["2013"]
+      ];
+    }
+
+    /**
+     * @dataProvider unixDatesProvider
+     */
+    public function testGetBeersWithSince($unixDate)
+    {
+      $client = new Client();
+      $response = $client->request('GET','http://api.brewerydb.com/v2/beers/?styleId=2&since='.$unixDate.'&key='.$this->key);
+      $body = json_decode($response->getBody());
+      $dates=[];
+      for ($i=0; $i < count($body->data); $i++) {
+        $date = Carbon::createFromFormat('Y-m-d H:i:s', $body->data[$i]->updateDate);
+        array_push($dates,$date);
+      }
+      for ($i=0; $i < count($dates); $i++) {
+        $this->assertTrue($dates[$i]->timestamp>$unixDate);
+      }
+    }
+
+    public function unixDatesProvider()
+    {
+      return [
+        [1519862400],
+      ];
     }
 }
