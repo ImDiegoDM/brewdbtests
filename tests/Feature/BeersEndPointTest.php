@@ -264,4 +264,24 @@ class BeersEndPointTest extends TestCase
         ["N"],
       ];
     }
+
+    public function testGetBeersWithLabelY()
+    {
+      $client = new Client();
+      $response = $client->request('GET','http://api.brewerydb.com/v2/beers/?styleId=1&hasLabels=Y&key='.$this->key);
+      $body = json_decode($response->getBody());
+      for ($i=0; $i < count($body->data); $i++) {
+        $this->assertTrue(isset($body->data[$i]->labels));
+      }
+    }
+
+    public function testGetBeersWithLabelN()
+    {
+      $client = new Client();
+      $response = $client->request('GET','http://api.brewerydb.com/v2/beers/?styleId=1&hasLabels=N&key='.$this->key);
+      $body = json_decode($response->getBody());
+      for ($i=0; $i < count($body->data); $i++) {
+        $this->assertTrue(!isset($body->data[$i]->labels));
+      }
+    }
 }
