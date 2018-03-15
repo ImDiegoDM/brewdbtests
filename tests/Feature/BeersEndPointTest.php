@@ -434,4 +434,14 @@ class BeersEndPointTest extends TestCase
         [5]
       ];
     }
+
+    public function testGetBeersWithBreweries()
+    {
+      $client = new Client();
+      $response = $client->request('GET','http://api.brewerydb.com/v2/beers/?styleId=1&withBreweries=Y&key='.$this->key);
+      $body = json_decode($response->getBody());
+      for ($i=0; $i < count($body->data); $i++) {
+        $this->assertTrue(isset($body->data[$i]->breweries));
+      }
+    }
 }
