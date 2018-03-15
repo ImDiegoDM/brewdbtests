@@ -414,4 +414,24 @@ class BeersEndPointTest extends TestCase
       rsort($beersInOrder,SORT_FLAG_CASE | SORT_STRING);
       $this->assertTrue($this->IsArraysEquals($beersInOrder,$beers));
     }
+
+    /**
+     * @dataProvider randomProvider
+     */
+    public function testGetBeerRandomCount($random)
+    {
+      $client = new Client();
+      $response = $client->request('GET','http://api.brewerydb.com/v2/beers/?styleId=1&order=random&randomCount='.$random.'&key='.$this->key);
+      $body = json_decode($response->getBody());
+      $this->assertTrue(count($body->data)==$random);
+    }
+
+    public function randomProvider()
+    {
+      return[
+        [3],
+        [2],
+        [5]
+      ];
+    }
 }
