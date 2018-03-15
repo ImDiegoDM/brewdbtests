@@ -335,4 +335,83 @@ class BeersEndPointTest extends TestCase
         [1519862400],
       ];
     }
+
+    /**
+     * @dataProvider statusProvider
+     */
+    public function testGetBeersWithStatus($status)
+    {
+      $client = new Client();
+      $response = $client->request('GET','http://api.brewerydb.com/v2/beers/?styleId=1&status='.$status.'&key='.$this->key);
+      $body = json_decode($response->getBody());
+      $beersStatus=[];
+      for ($i=0; $i < count($body->data); $i++) {
+        array_push($beersStatus,$body->data[$i]->status);
+      }
+      for ($i=0; $i < count($beersStatus); $i++) {
+        $this->assertEquals($beersStatus[$i],$status);
+      }
+    }
+
+    public function statusProvider()
+    {
+      return [
+        ["verified"],
+      ];
+    }
+
+    /**
+     * @dataProvider orderProvider
+     */
+    public function testOrderBeers($order)
+    {
+      $client = new Client();
+      $response = $client->request('GET','http://api.brewerydb.com/v2/beers/?styleId=1&order='.$order.'&key='.$this->key);
+      $body = json_decode($response->getBody());
+      $beers=[];
+      for ($i=0; $i < count($body->data); $i++) {
+        array_push($beers,$body->data[$i]->$order);
+      }
+      $beersInOrder = $beers;
+      natsort($beersInOrder);
+      $this->assertTrue($this->IsArraysEquals($beersInOrder,$beers));
+    }
+
+    private function IsArraysEquals($array1,$array2)
+    {
+      if(count($array1)!=count($array2)) return false;
+      for ($i=0; $i < count($array1); $i++) {
+        if($array1[$i]!=$array2[$i]){
+          echo $array1[$i]." is diferent then ".$array2[$i];
+          return false;
+        }
+      }
+      return true;
+    }
+
+    public function orderProvider()
+    {
+      return [
+        ["name"],
+        ["status"],
+        ["createDate"]
+      ];
+    }
+
+    /**
+     * @dataProvider orderProvider
+     */
+    public function testOrderBeersDesc($order)
+    {
+      $client = new Client();
+      $response = $client->request('GET','http://api.brewerydb.com/v2/beers/?styleId=1&sort=DESC&order='.$order.'&key='.$this->key);
+      $body = json_decode($response->getBody());
+      $beers=[];
+      for ($i=0; $i < count($body->data); $i++) {
+        array_push($beers,$body->data[$i]->$order);
+      }
+      $beersInOrder = $beers;
+      rsort($beersInOrder,SORT_FLAG_CASE | SORT_STRING);
+      $this->assertTrue($this->IsArraysEquals($beersInOrder,$beers));
+    }
 }
